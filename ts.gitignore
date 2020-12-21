@@ -1,0 +1,5 @@
+#忽略node_modules文件夹内容
+/node_modules   
+
+#忽略default文件夹 - ts打包内容
+/default
