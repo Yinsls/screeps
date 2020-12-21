@@ -35,7 +35,7 @@ module.exports.loop = function() {
         const room = creep['room']['name'];
         const list = rooms[room].creeps;
         const isDel = list.indexOf(name);
-        isDel === -1?list.splice(isDel, 1):console.log('删除失败，room.creeps中找不到此creep', name);
+        isDel !== -1?list.splice(isDel, 1):console.log('删除失败，room.creeps中找不到此creep', name);
         
       }else {
         const creepType = name.split('_')[0];
