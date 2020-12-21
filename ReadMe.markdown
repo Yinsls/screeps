@@ -64,7 +64,6 @@
         rooms: {
             'roomName': {
                 spawns: [],             // 此房间内所有spawn
-                creeps: [],             // 此房间内所有creep
                 source: [],             // source列表
                 container: [],          // container列表
                 repair: [],             // 需维护建筑
