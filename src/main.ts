@@ -4,6 +4,8 @@ import creCreateClass from './role.action.creater'
 import creHarvestClass from './role.action.harvestr'
 import creCarriageClass from './role.action.carriager'
 
+// test commit
+
 /** 主程序循环入口 - 若写在loop外部的内容，只在游戏初始化时运行一次 */
 module.exports.loop = function() {
   // 检测全局对象是否存在
