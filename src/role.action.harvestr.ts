@@ -1,10 +1,9 @@
 import {CommCreep} from './common'
+/** 采集者采集能源存储至container中 【采集者无carry部件，无法存储能量】 */
 class Harvest extends CommCreep{
   constructor(creep: Creep) {
     super(creep)
   }
-
-  /**  */
 
   /** 入口 */
   run() {

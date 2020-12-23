@@ -58,10 +58,10 @@ export class CommUpdate {
       // 设置container序列号idx
       if(container.length) {
         container[0]['idx'] = index;
-        rooms[room]['container'].push(container[0]);
+        rooms[room].container.push(container[0]);
       }
       sources[index] = index;
-      rooms[room]['source'].push(item);
+      rooms[room].source.push(item);
     })
     
     global.updateTime['refreshSource'] = Game.time + 500;
@@ -147,8 +147,12 @@ export class CommCreep {
    * @param taskType 任务列表key
    */
   setTask(taskType: any): void {
-    const taskList = rooms[this.creep.room.name][taskType];
-    const idx = this.randomTask(taskList);
+    let idx = 0, taskList;
+    if(taskType !== 'harvest') {
+      taskList = rooms[this.creep.room.name][taskType];
+      idx = this.randomTask(taskList);
+    }
+    
     // 若任务列表不为空，给creep.memory.task设置列表下标作为标记，直接根据下标到任务列表获取目标对象
     if(taskList.length) {
       this.creep.memory['task'] = idx;
