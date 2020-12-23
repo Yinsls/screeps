@@ -47,7 +47,7 @@ class Create {
   /** 检测creep数量 - 依靠creep名字作为标记 */
   testCreepNum() {
     // const creepArray = ['harvester', 'upgrader', 'builder', 'repair', 'expander']
-    const creepArray = ['harvester', 'carriager']
+    const creepArray = ['harvester', 'carriager', 'builder']
     creepArray.forEach(item => {
       // 注意：修改memory.role无效，creep名字无法修改，一旦生成，即存在，不可修改！
       let factNum = 0;

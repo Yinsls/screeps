@@ -1,5 +1,6 @@
 import {CommUpdate, CommTest} from './common'
 import creTowerClass from './role.action.tower'
+import creBuildClass from './role.action.builder'
 import creCreateClass from './role.action.creater'
 import creHarvestClass from './role.action.harvestr'
 import creCarriageClass from './role.action.carriager'
@@ -42,9 +43,9 @@ module.exports.loop = function() {
         switch(creepType) {
           case 'harvester': creHarvestClass(creep); break;
           case 'carriager': creCarriageClass(creep); break;
+          case 'builder': creBuildClass(creep); break;
           // case 'upgrader': creUpgradeClass(creep); break;
           // case 'repair': creRepairClass(creep); break;
-          // case 'builder': creBuildClass(creep); break;
           // case 'expander': creExpandClass(creep); break;
           // case 'test': creExpandClass(creep); break;
           default: break;

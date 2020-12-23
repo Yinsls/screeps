@@ -48,27 +48,35 @@ class Carriage extends CommCreep {
   /** 入口 */
   run() {
     this.urgency();
+    // 补给完毕
     if(this.testStatus()) {
+      // 若无任务，重新请求任务idx
       if(!this.creep.memory.task) this.setTask('harvest');
+      // 获取任务对象
       const target = this.getTask();
-      const status = this.creep.transfer(target, RESOURCE_ENERGY);
-      // 判断此次补给品是否足够
-      const enought = this.creep.store[RESOURCE_ENERGY] >= target.store.getFreeCapacity(RESOURCE_ENERGY);
-      if(status === ERR_NOT_IN_RANGE) {
-        this.moveTo();
-      }else if(status === OK) {
-        delete this.creep.memory.path;
-        if(enought) {
-          rooms[this.creep.room.name].harvest.splice(this.creep.memory.task, 1);
-          delete this.creep.memory.task;
+      if(target) {
+        console.log('transfer before: ', JSON.stringify(target))
+        // 尝试传输能量，并记录传输结果
+        const staCode = this.creep.transfer(target, RESOURCE_ENERGY);
+        // 判断此次补给品是否足够
+        // const enought = this.creep.store[RESOURCE_ENERGY] >= target.store.getFreeCapacity(RESOURCE_ENERGY);
+        // 若超过transfer距离，前往目标对象，若成功，删除存储的移动路线(重新查找新路线)，并判断任务是否完成，是否从任务列表删除此任务
+        if(staCode === ERR_NOT_IN_RANGE) {
+          this.moveTo(target);
+        }else if(staCode === OK) {
+          delete this.creep.memory.path;
+          console.log('transfer after: ', JSON.stringify(target))
+          // if(enought) {
+          //   rooms[this.creep.room.name].harvest.splice(this.creep.memory.task, 1);
+          //   delete this.creep.memory.task;
+          // }
+        }else {
+          console.log('role.action.carriager: transfer fail - Unknow Error 》 ', staCode);
         }
       }
     } else {
       // 前往能量矿采集能量
-      const source = rooms[this.creep.room.name]['source'][this.creep.memory.source];
-      // 前往container获取能量
-      // const container = this.creep.room.find()
-      this.getEnergyFrom(source);
+      this.getEnergyFrom();
     }
   }
 }

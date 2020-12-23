@@ -43,34 +43,35 @@ export class CommUpdate {
 
   /** 更新source和container列表 */
   static updateSource(room:string, forceLoad=false) {
-    if(forceLoad || !rooms[room].source.length || Game.time - global.updateTime['refreshSource'] >= 0) {
-    let container, sources:any[];
-    // 初始化source列表
-    rooms[room].source = [];
-    rooms[room].container = [];
-    // 查找房间内source
-    sources = Game.rooms[room].find(FIND_SOURCES);
-    // 遍历该房间所有source，查找source附近的container并设置idx
-    sources.forEach((item,index) => {
-      container = item.pos.findInRange(FIND_STRUCTURES, 1).filter((struct:Structure) => {
-        return struct.structureType === STRUCTURE_CONTAINER
+    if(forceLoad || !rooms[room].source.length || global.updateTime['refreshSource'] || Game.time - global.updateTime['refreshSource'] >= 0) {
+      let container, sources:any[];
+      // 初始化source列表
+      rooms[room].source = [];
+      rooms[room].container = [];
+      // 查找房间内source
+      sources = Game.rooms[room].find(FIND_SOURCES);
+      // 遍历该房间所有source，查找source附近的container并设置idx
+      sources.forEach((item,index) => {
+        container = item.pos.findInRange(FIND_STRUCTURES, 1).filter((struct:Structure) => {
+          return struct.structureType === STRUCTURE_CONTAINER
+        })
+        // 设置container序列号idx
+        if(container.length) {
+          container[0]['idx'] = index;
+          rooms[room].container.push(container[0]);
+        }
+        sources[index] = index;
+        rooms[room].source.push(item);
       })
-      // 设置container序列号idx
-      if(container.length) {
-        container[0]['idx'] = index;
-        rooms[room].container.push(container[0]);
-      }
-      sources[index] = index;
-      rooms[room].source.push(item);
-    })
-    
-    global.updateTime['refreshSource'] = Game.time + 500;
+      
+      global.updateTime['refreshSource'] = Game.time + 500;
+      console.log('CommUpdate-updateSource');
     }
   }
 
   /** 更新harvest列表 */
   static updateHarvest(room:string, forceLoad=false) {
-    if(forceLoad || !rooms[room].harvest.length || Game.time - global.updateTime['refresHarvest'] >= 0) {
+    if(forceLoad || !rooms[room].harvest.length || global.updateTime['refresHarvest'] || Game.time - global.updateTime['refresHarvest'] >= 0) {
       if(rooms[room].struct.length) {
         const harvest = rooms[room].struct.filter((struct:Structure) => {
           return (struct.structureType === STRUCTURE_SPAWN ||
@@ -91,6 +92,19 @@ export class CommUpdate {
         rooms[room].harvest = harvest;
         global.updateTime['refresHarvest'] = Game.time + 50;
       }
+      console.log('CommUpdate-updateHarvest');
+    }
+  }
+
+  /** 更新建造列表 */
+  static updateBuild(room:string, forceLoad=false) {
+    if(forceLoad || rooms[room].build.length || global.updateTime['refreshBuild'] || Game.time - global.updateTime['refreshBuild'] >= 0) {
+      const struct = Game.rooms[room].find(FIND_CONSTRUCTION_SITES);
+      if(struct.length) {
+        rooms[room].build = struct
+      }
+      global.updateTime['refreshBuild'] = Game.time + 200;
+      console.log('CommUpdate-updateBuild');
     }
   }
 }
@@ -123,11 +137,6 @@ export class CommTest {
     fnc();
     console.log(name, Game.cpu.getUsed() - spend1);
   }
-
-  static willDeath(room:string) {
-
-  }
-
 }
 
 /** 公共Creep */
@@ -136,6 +145,7 @@ export class CommCreep {
   constructor(creep: Creep) {
     this.creep = creep
   }
+
   /** 获取随机数组下标 */
   randomTask(tasks: any[]): number {
     const sort = Math.random();
@@ -143,26 +153,47 @@ export class CommCreep {
     return target;
   }
 
+  /** 根据task更新对应任务列表
+   * @param room 房间名
+   * @param task 更新目标【harvest、build】
+   */
+  updateList(room:string, task:string) {
+    switch(task) {
+      case 'harvest': CommUpdate.updateHarvest(room); break;
+      case 'build': CommUpdate.updateBuild(room); break;
+      default: 
+        console.log('not found update list!');
+    }
+  }
+
   /** creep - 设置独立task
    * @param taskType 任务列表key
    */
-  setTask(taskType: any): void {
-    let idx = 0, taskList;
-    if(taskType !== 'harvest') {
-      taskList = rooms[this.creep.room.name][taskType];
-      idx = this.randomTask(taskList);
+  setTask(taskType: string): void {
+    let idx = 0;
+    const room = this.creep.room.name;
+    const taskList = rooms[room][taskType];
+    if(taskList.length) {
+      // 若task为harvest，按顺序从0往后执行任务，否则随机获取对应任务
+      if(taskType !== 'harvest') {
+        idx = this.randomTask(taskList);
+      }
+    }else {
+      this.updateList(room, taskType);
     }
-    
     // 若任务列表不为空，给creep.memory.task设置列表下标作为标记，直接根据下标到任务列表获取目标对象
     if(taskList.length) {
       this.creep.memory['task'] = idx;
     }
   }
 
-  /** creep - 根据id获取目标对象 */
-  getTask(task: any = null): any {
+  /** 根据任务字段与memory.task序列号获取该房间目标对象
+   * @param taskType 任务类型，默认harvest【rooms[room].harvest】
+   */
+  getTask(taskType:string = 'harvest'): any {
+    // 默认获取补给任务，否则
     const idx = this.creep.memory.task;
-    const target = rooms[this.creep.room.name].harvest[idx];
+    const target = rooms[this.creep.room.name][taskType][idx];
     return target;
   }
 
@@ -203,25 +234,36 @@ export class CommCreep {
 
   /** 从目标获取能量 默认前往container和source
    * @param Structure
-   * @default Null
+   * @default source || container
    */
-  getEnergyFrom(target: Structure) {
+  getEnergyFrom(target: any = null) {
     let result = -1;
-    // 若指定建筑获取能量
-    if(target) {
-      const idx = this.creep.memory.source
-      const container = rooms[this.creep.room.name]['container'][idx]
+    // 若未指定建筑，默认从本身匹配的能量矿id获取能量(优先container，不存在则source)
+    if(!target) {
+      // 获取creep中存储的能量矿id
+      const idx = this.creep.memory.source;
+      const room = this.creep.room.name;
+      const container = rooms[room]['container'][idx]
       // 若检测到container能量充足，则从container获取能量，否则自行从source采集能量
       if(container && container.store[RESOURCE_ENERGY] > 100) {
-        result = this.creep.withdraw(container, RESOURCE_ENERGY)
-        if(result === ERR_NOT_IN_RANGE) this.moveTo(container)
+        result = this.creep.withdraw(container, RESOURCE_ENERGY);
+        if(result === ERR_NOT_IN_RANGE) this.moveTo(container);
       }else {
-        result = this.creep.harvest(target)
-        if(result === ERR_NOT_IN_RANGE) this.moveTo(target)
+        const source = rooms[room].source[idx] || rooms[room].source[0];
+        result = this.creep.harvest(source);
+        if(result === ERR_NOT_IN_RANGE) this.moveTo(source);
       }
     }else {
-      console.log('common.ts - getEneryFrom: target:undefinded')
+      // 若对象属于Structure使用withdraw，否则使用harvest获取能量
+      if(target instanceof Structure) {
+        result = this.creep.withdraw(target, RESOURCE_ENERGY);
+        if(result === ERR_NOT_IN_RANGE) this.moveTo(target);
+      }else {
+        result = this.creep.harvest(target);
+        if(result === ERR_NOT_IN_RANGE) this.moveTo(target);
+      }
     }
-    return result
+    // result默认-1，用于记录采集能量状态码
+    return result;
   }
 }
