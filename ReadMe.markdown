@@ -20,26 +20,6 @@
 > role.common: 公共方法，主要包括creep的公共函数，少量建筑的公共函数
 > creep.mod: creep模板(包含各creep数量，部件情况等)
 
-<<<<<<< HEAD
-## 接口方式设置creep
-> creep: task(任务)、taskType(任务类别(采集、升级、运输...))、status(是否可工作状态)、role(角色分工)、room(家、目的地默认为Null)
-
-### Memory Config (根据房间名存储，如:Memory['W35S3']['hasEnemy'])
-| 参数 | 说明 | 特别说明 |
-| :--- | :--- | :--- |
-| source | 能量矿列表 | 各个房间存在各自的能量矿(各自设置idx序号) |
-| container | 能量矿列表 | idx序号与临近的能量矿相同，优先从container获取能量 |
-| harvest_task | 上次采集任务列表     | null，根据是否还存在任务自动刷新      |
-| build_task | 需修建建筑列表 |  |
-| repair_task | 需维护建筑列表 | 可强制更新(需改名，原为repair_structure) |
-| expand_task | 欲占领房间列表 | 手动设置(未完成) |
-| repair_update_time | 上次更新维护建筑列表时间 | 可强制更新 |
-| structure | 建筑列表 | 可强制更新(已删除) |
-
-| hasEnemy | 是否存在敌人 |  |
-
-## Creep Config
-=======
 
 ### Memory Config (根据房间名存储，如:Memory['W35S3']['hasEnemy'])
 | 对象 | 说明 | 特别说明 |
@@ -57,20 +37,13 @@
 
 ## Creep Config
 | 对象 | 说明 | 说明补充 |
->>>>>>> fix something
 | :--- | :--- | :--- |
 | color | 路径颜色 | 只在起始moveTo时显示，存储roadpath后不显示道路颜色 |
 | num | 同类别creep数量 | 自动创建creep功能根据此参数判断 |
 | part | creep部件种类与部件数量 | 自动创建creep功能中遍历此属性创建对应部件的creep，能量不足时，默认各部件数1 |
-<<<<<<< HEAD
-| role | creep种类 | 工作分配机制据此对不同creep发布不同任务 | 
-| source | 各creep补给能量的能量矿目标 | 优先从同idx序列的container中补给能量 |
-| task | creep当前任务id | 旧版：据此id查找目标对象，进行工作 新版：当前任务列表下标，根据任务列表对象进行工作 |
-=======
 | role | creep种类 | creep自动创建时，以role+'_'+time命名,工作分配机制以名字中的role字符分配任务 |
 | source | 各creep补给能量的能量矿目标 | 优先从同idx序列的container中补给能量 |
 | task | creep当前任务idx | 当前任务列表下标，根据任务列表对象进行工作 |
->>>>>>> fix something
 
 
 ## Global
@@ -90,10 +63,7 @@
         rooms: {
             'roomName': {
                 spawns: [],             // 此房间内所有spawn
-<<<<<<< HEAD
-=======
                 creeps: [],             // 此房间内所有creep
->>>>>>> fix something
                 source: [],             // source列表
                 container: [],          // container列表
                 repair: [],             // 需维护建筑
@@ -122,10 +92,7 @@
   8、添加战时能量补给分配，优先从仓库中获取能量补给tower能量消耗，不足时再前往能量矿补给能量
   9、添加进攻者creep与防御者creep，当敌人进攻时，自动创建防御者进行防护，占领房间时，创建进攻者对目标房间发起进攻
   10、添加医疗兵creep，在战斗时可对己方士兵医治，最大程度减少损耗
-<<<<<<< HEAD
-=======
   11、更新harvest和source后下一轮tick内容消失，但同层级的rooms[room].sturct并无消失情况，待修复
   12、添加维护者与建造者，当建造者完成所有建造任务时，自动帮助维护房间建筑
->>>>>>> fix something
   
 ```
