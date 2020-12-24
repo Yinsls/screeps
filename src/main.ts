@@ -32,7 +32,7 @@ module.exports.loop = function() {
       if (!creep) {
         // 删除memory与room.creeps中的creep对象
         delete Memory.creeps[name];
-
+        // 删除rooms[room].creep
         const room = creep['room']['name'];
         const list = rooms[room].creeps;
         const isDel = list.indexOf(name);

@@ -14,7 +14,7 @@ export class CommUpdate {
       roomName.forEach(room => {
         if(!global.rooms[room]) {
           global.rooms[room] = {
-            struct: [],             // 全部建筑列表，其他建筑列表根据此列表筛选数据(towers、repair、harvest)
+            struct: [],             // 全部建筑列表，其他建筑列表根据此列表筛选数据(towers)
             source: [],             // source列表
             container: [],          // container列表
             creeps: [],             // 房间内creep列表,存储creep.name,死亡时自动删除
@@ -73,14 +73,17 @@ export class CommUpdate {
   static updateHarvest(room:string, forceLoad=false) {
     if(forceLoad || !rooms[room].harvest.length || global.updateTime['refresHarvest'] || Game.time - global.updateTime['refresHarvest'] >= 0) {
       if(rooms[room].struct.length) {
-        const harvest = rooms[room].struct.filter((struct:Structure) => {
-          return (struct.structureType === STRUCTURE_SPAWN ||
-                 struct.structureType === STRUCTURE_EXTENSION ||
-                 struct.structureType === STRUCTURE_LINK ||
-                 struct.structureType === STRUCTURE_TOWER) && struct['store'] &&
-                 struct['store'].getFreeCapacity(RESOURCE_ENERGY) > 0
+        const harvest = Game.rooms[room].find(FIND_STRUCTURES, {
+          filter: (struct:Structure) => {
+            return (struct.structureType === STRUCTURE_SPAWN ||
+                   struct.structureType === STRUCTURE_EXTENSION ||
+                   struct.structureType === STRUCTURE_LINK ||
+                   struct.structureType === STRUCTURE_TOWER ||
+                   struct.structureType === STRUCTURE_STORAGE) &&
+                   struct['store'].getFreeCapacity(RESOURCE_ENERGY) > 0
+          }
         })
-        const priority = ['spawn', 'extension', 'link', 'tower'];
+        const priority = ['spawn', 'extension', 'link', 'tower', 'storage'];
         // 根据优先级列表对harvest列表排序
         harvest.sort((a:Structure, b:Structure) => {
           return priority.findIndex((val) => {

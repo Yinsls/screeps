@@ -55,21 +55,26 @@ class Carriage extends CommCreep {
       // 获取任务对象
       const target = this.getTask();
       if(target) {
-        console.log('transfer before: ', JSON.stringify(target))
+        // console.log('transfer before: ', JSON.stringify(target))
+        // 判断此次补给品是否足够
+        const enought = this.creep.store[RESOURCE_ENERGY] >= target.store.getFreeCapacity(RESOURCE_ENERGY);
         // 尝试传输能量，并记录传输结果
         const staCode = this.creep.transfer(target, RESOURCE_ENERGY);
-        // 判断此次补给品是否足够
-        // const enought = this.creep.store[RESOURCE_ENERGY] >= target.store.getFreeCapacity(RESOURCE_ENERGY);
-        // 若超过transfer距离，前往目标对象，若成功，删除存储的移动路线(重新查找新路线)，并判断任务是否完成，是否从任务列表删除此任务
+        // 若超过transfer距离，前往目标对象，若成功，删除存储的移动路线(重新查找新路线)
         if(staCode === ERR_NOT_IN_RANGE) {
           this.moveTo(target);
         }else if(staCode === OK) {
           delete this.creep.memory.path;
-          console.log('transfer after: ', JSON.stringify(target))
-          // if(enought) {
-          //   rooms[this.creep.room.name].harvest.splice(this.creep.memory.task, 1);
-          //   delete this.creep.memory.task;
-          // }
+          // console.log('transfer after: ', JSON.stringify(target))
+          // 判断补给是否足够，删除此补给任务，删除creep任务id
+          if(enought) {
+            rooms[this.creep.room.name].harvest.splice(this.creep.memory.task, 1);
+            delete this.creep.memory.task;
+          }
+        }else if(staCode === ERR_FULL) {    // 此建筑已经完成了能量补给
+          delete this.creep.memory.path;
+          rooms[this.creep.room.name].harvest.splice(this.creep.memory.task, 1);
+          delete this.creep.memory.task;
         }else {
           console.log('role.action.carriager: transfer fail - Unknow Error 》 ', staCode);
         }
