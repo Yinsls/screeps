@@ -54,7 +54,7 @@ export class CommUpdate {
 
   /** 更新source和container列表 */
   static updateSource(room:string, forceLoad=false) {
-    if(forceLoad || !rooms[room].source.length || global.updateTime['refreshSource'] || Game.time > global.updateTime['refreshSource']) {
+    if(forceLoad || !rooms[room].source.length || !global.updateTime['refreshSource'] || Game.time > global.updateTime['refreshSource']) {
       let container, sources:any[];
       // 初始化source列表
       rooms[room].source = [];
@@ -82,7 +82,7 @@ export class CommUpdate {
 
   /** 更新harvest列表 */
   static updateHarvest(room:string, forceLoad=false) {
-    if(forceLoad || !rooms[room].harvest.length || global.updateTime['refresHarvest'] || Game.time > global.updateTime['refresHarvest']) {
+    if(forceLoad || !rooms[room].harvest.length || !global.updateTime['refresHarvest'] || Game.time > global.updateTime['refresHarvest']) {
       if(rooms[room].struct.length) {
         const harvest = Game.rooms[room].find(FIND_STRUCTURES, {
           filter: (struct:Structure) => {
@@ -112,7 +112,7 @@ export class CommUpdate {
 
   /** 更新建造列表 */
   static updateBuild(room:string, forceLoad=false) {
-    if(forceLoad || rooms[room].build.length || global.updateTime['refreshBuild'] || Game.time > global.updateTime['refreshBuild']) {
+    if(forceLoad || !rooms[room].build.length || !global.updateTime['refreshBuild'] || Game.time > global.updateTime['refreshBuild']) {
       const struct = Game.rooms[room].find(FIND_CONSTRUCTION_SITES);
       if(struct.length) {
         rooms[room].build = struct

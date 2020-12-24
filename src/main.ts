@@ -56,7 +56,7 @@ module.exports.loop = function() {
       }
     }
   }
-  // 啊啊啊啊b
+  
 
   // 自动将多余cpu转化为pixel
   if(Game.cpu.bucket > 9000) {

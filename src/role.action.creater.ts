@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import {Creepmod} from './creep.mod'
 import {CommUpdate} from './common'
-import { assert } from 'console'
 
 class Create {
   public room: string
@@ -49,7 +48,7 @@ class Create {
   testMineral() {
     let setTime = true;
     // 500tick检测一次房间内是否可采矿
-    if(!rooms[this.room].updateTime['refreshMineral'] || Game.time > rooms[this.room].updateTime['refreshMineral']) {
+    if(!global.updateTime['refreshMineral'] || Game.time > global.updateTime['refreshMineral']) {
       const mineral = Game.rooms[this.room].find(FIND_MINERALS);
       // 若存在矿床
       if(mineral.length) {
@@ -67,8 +66,8 @@ class Create {
             rooms[this.room].container.push(container[0]);
           }else{
             rooms[this.room].record['mineral'] = false;
-            rooms[this.room].updateTime['refreshMineral'] = Game.time + 100;
-            console.log('mine not findInRang container,please build it!');
+            global.updateTime['refreshMineral'] = Game.time + 100;
+            console.log('role.action.creater: mine not findInRang container,please build it!');
             setTime = false;
             return false;
           }

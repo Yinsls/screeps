@@ -78,7 +78,7 @@ class Mining extends CommCreep {
 }
 
 function creMiningClass(creep:Creep, type:string) {
-  new Mining(creep, type).run();
+  return new Mining(creep, type).run();
 }
 
 export default creMiningClass;

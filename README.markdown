@@ -82,7 +82,7 @@
 ## 当前任务：
 ```javascript
   1、占领新房间
-  2、实现harvester运送分离(一个creep专门负责采集能量，存放至container中，其他creep从container中获取enery，
+  2、(已完成)实现harvester运送分离(一个creep专门负责采集能量，存放至container中，其他creep从container中获取enery，
       减少采集者carry与move消耗，也能减少运输者采集花费的时间)
   3、自动创建creep存在bug，其中creep对象存储与全局Memory中，导致不同房间的creep合并计算，发生数量不匹配情况
   4、每个能量矿分配的creep(采集者)不合理,目前只设置了spawn能量供应矿点的采集者，应当对所有能量矿点进行采集者分配，
@@ -96,5 +96,6 @@
   10、添加医疗兵creep，在战斗时可对己方士兵医治，最大程度减少损耗
   11、更新harvest和source后下一轮tick内容消失，但同层级的rooms[room].sturct并无消失情况，待修复
   12、添加维护者与建造者，当建造者完成所有建造任务时，自动帮助维护房间建筑
-  
+  13、bug - tower对象energy不发生变化，导致判断能量无效，一直处于激活状态，直到能量用尽
+  14、bug - build未能及时删除内存道路，导致creep完成目标后依旧走完内存道路再执行新任务
 ```

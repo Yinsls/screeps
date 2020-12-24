@@ -3,3 +3,6 @@
 
 #忽略default文件夹 - ts打包内容
 /default/
+
+#忽略oldVersion文件夹 - 正式版内容
+/oldVersion/
