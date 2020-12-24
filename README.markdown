@@ -30,7 +30,9 @@
 | room.harvest | 上次采集任务列表 | 根据是否还存在任务自动刷新 |
 | room.build | 需修建建筑列表 | 可强制更新 |
 | room.repair | 需维护建筑列表 | 可强制更新 |
+| room.mine | 记录房间内矿脉对象 | 暂作每房间一个矿脉 |
 | room.hasEnemy | 是否存在敌人 | 默认false |
+| room.record | 记录房间内某时间段boolean值 | record:{}, 无默认值(默认不存在) |
 | global.expand | 欲占领房间列表 | 手动设置(未完成) |
 | global.updateTime | 定时更新列表，其中包含需定时更新信息key:time形式 | 可强制更新 |
 
@@ -50,14 +52,14 @@
 ```javascript
     global {
         // 扩张任务 若占领成功，删除此对象 【此对象手动生成】
-        'expand': {     
+        'expand': {
             creeps: [],
             targetRoot: []
         },
 
+        // 记录全局某模块刷新时间,如：
         updateTime: [
-            {'loadRoom': 'xxx'},        // 刷新房间对象，默认10000tick刷新一次
-
+            {'refreshRoom': 'Game.time'}
         ],
 
         rooms: {

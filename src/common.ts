@@ -5,7 +5,7 @@ export class CommUpdate {
    */
   static updateRoom(forceLoad=false) {
     // 第一次或者到时间自动刷新房间对象，将未统计房间加入全局对象
-    if(!global.updateTime['refreshRoom'] || Game.time - global.updateTime.refrshRoom >= 0 || forceLoad) {
+    if(!global.updateTime['refreshRoom'] || Game.time > global.updateTime.refrshRoom || forceLoad) {
       const roomName:string[] = [];
       for(const spawn in Game.spawns) {
         const name = Game.spawns[spawn].room.name;
@@ -14,6 +14,8 @@ export class CommUpdate {
       roomName.forEach(room => {
         if(!global.rooms[room]) {
           global.rooms[room] = {
+            mine: [],
+            record: {},             // 记录房间内的判断(特定时间内)
             struct: [],             // 全部建筑列表，其他建筑列表根据此列表筛选数据(towers)
             source: [],             // source列表
             container: [],          // container列表
@@ -33,17 +35,26 @@ export class CommUpdate {
   /** 更新所有建筑列表 */
   static updateStruct(room:string, forceLoad=false) {
     // 首次更新或到达设定更新时间，更新建筑列表
-    if(forceLoad || !global.updateTime['refreshStruct'] || Game.time - global.updateTime['refreshStruct'] >= 0) {
+    if(forceLoad || !global.updateTime['refreshStruct'] || Game.time > global.updateTime['refreshStruct']) {
       const struct = Game.rooms[room].find(FIND_STRUCTURES);
       rooms[room].struct = struct;
-      global.updateTime['refreshStruct'] = Game.time + 1000;
+      global.updateTime['refreshStruct'] = Game.time + 200;
+      CommUpdate.updateRepair(room, true);
       console.log('CommUpdate-updateStruct');
     }
   }
 
+  /** 更新repair列表 */
+  static updateRepair(room:string, forceLoad=false) {
+    rooms[room].repair = rooms[room].struct.filter((item:Structure) => {
+      return item.hits < item.hitsMax;
+    })
+    console.log('CommUpdate - updateRepair');
+  }
+
   /** 更新source和container列表 */
   static updateSource(room:string, forceLoad=false) {
-    if(forceLoad || !rooms[room].source.length || global.updateTime['refreshSource'] || Game.time - global.updateTime['refreshSource'] >= 0) {
+    if(forceLoad || !rooms[room].source.length || global.updateTime['refreshSource'] || Game.time > global.updateTime['refreshSource']) {
       let container, sources:any[];
       // 初始化source列表
       rooms[room].source = [];
@@ -71,7 +82,7 @@ export class CommUpdate {
 
   /** 更新harvest列表 */
   static updateHarvest(room:string, forceLoad=false) {
-    if(forceLoad || !rooms[room].harvest.length || global.updateTime['refresHarvest'] || Game.time - global.updateTime['refresHarvest'] >= 0) {
+    if(forceLoad || !rooms[room].harvest.length || global.updateTime['refresHarvest'] || Game.time > global.updateTime['refresHarvest']) {
       if(rooms[room].struct.length) {
         const harvest = Game.rooms[room].find(FIND_STRUCTURES, {
           filter: (struct:Structure) => {
@@ -101,7 +112,7 @@ export class CommUpdate {
 
   /** 更新建造列表 */
   static updateBuild(room:string, forceLoad=false) {
-    if(forceLoad || rooms[room].build.length || global.updateTime['refreshBuild'] || Game.time - global.updateTime['refreshBuild'] >= 0) {
+    if(forceLoad || rooms[room].build.length || global.updateTime['refreshBuild'] || Game.time > global.updateTime['refreshBuild']) {
       const struct = Game.rooms[room].find(FIND_CONSTRUCTION_SITES);
       if(struct.length) {
         rooms[room].build = struct
@@ -223,12 +234,12 @@ export class CommCreep {
   }
 
   /** creep - 检测creep是否具备能量 */
-  testStatus(): boolean {
-    if(this.creep.memory.building && this.creep.store[RESOURCE_ENERGY] === 0) {
+  testStatus(type:string=RESOURCE_ENERGY): boolean {
+    if(this.creep.memory.building && this.creep.store[type] === 0) {
       this.creep.memory.building = false;
     }
     
-    if(!this.creep.memory.building && this.creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+    if(!this.creep.memory.building && this.creep.store.getFreeCapacity(type) === 0) {
       this.creep.memory.building = true;
     }
 

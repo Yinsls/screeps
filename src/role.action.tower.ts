@@ -31,7 +31,8 @@ class Tower {
       if(repairObj.length) {
         // 获取维护列表 - 随机下标
         // const random = this.randomTask(repairObj)
-        const struct: any = Game.getObjectById(repairObj[0])
+        // 按顺序维护
+        const struct: any = repairObj[0];
         if(struct instanceof Structure) {
           this.tower.repair(struct);
           // 若维护完毕，将此建筑从维护列表删除

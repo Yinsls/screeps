@@ -1,6 +1,7 @@
 import {CommUpdate, CommTest} from './common'
 import creTowerClass from './role.action.tower'
 import creBuildClass from './role.action.builder'
+import creMiningClass from './role.caction.miner'
 import creCreateClass from './role.action.creater'
 import creHarvestClass from './role.action.harvestr'
 import creCarriageClass from './role.action.carriager'
@@ -15,8 +16,8 @@ module.exports.loop = function() {
   for(const room in rooms) {
     // 更新全局建筑列表
     CommUpdate.updateStruct(room);
-    CommUpdate.updateSource(room, true);
-    CommUpdate.updateHarvest(room, true);
+    CommUpdate.updateSource(room);
+    CommUpdate.updateHarvest(room);
     // 检测房间内是否存在敌人
     CommTest.hasEnemy(room);
     // tower工作 - 若有敌人则进攻敌人，否则维护建筑
@@ -44,6 +45,8 @@ module.exports.loop = function() {
           case 'harvester': creHarvestClass(creep); break;
           case 'carriager': creCarriageClass(creep); break;
           case 'builder': creBuildClass(creep); break;
+          case 'minerA': creMiningClass(creep, 'A'); break;
+          case 'minerB': creMiningClass(creep, 'B'); break;
           // case 'upgrader': creUpgradeClass(creep); break;
           // case 'repair': creRepairClass(creep); break;
           // case 'expander': creExpandClass(creep); break;

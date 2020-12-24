@@ -21,6 +21,9 @@ export class Creepmod {
   static repair = {role: 'repair', part: {WORK:2, CARRY:4, MOVE:2}, num: 1, color: 'orange', source: 1}
   static builder = {role: 'builder', part: {WORK:3, CARRY:5, MOVE:2}, num: 1, color: 'red', source: 1}
 
+  // 矿工 - minerA：采矿者， minerB：运矿者 【若无storage不创建此类工种】
+  static minerA = {role: 'minerA', part: {WORK:5, MOVE: 1}, num: 1, color: 'orange'}
+  static minerB = {role: 'minerB', part: {CARRY:6, MOVE: 3}, num: 1, color: 'orange'}
   // static expander = {role: 'expander', part: {WORK:1, CARRY:2, MOVE:3, CLAIM:1}, num: 0, color: 'purple'}
 }
 
