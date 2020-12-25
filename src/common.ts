@@ -1,11 +1,11 @@
 /** 公共刷新 - 房间数、维护建筑、修建建筑等 */
 export class CommUpdate {
-  /** 刷新房间对象
+  /** 刷新房间对象 - 10000tick
    * @param forceLoad 强制刷新房间，可用于手操占领房间，默认false
    */
   static updateRoom(forceLoad=false) {
     // 第一次或者到时间自动刷新房间对象，将未统计房间加入全局对象
-    if(!global.updateTime['refreshRoom'] || Game.time > global.updateTime.refrshRoom || forceLoad) {
+    if(forceLoad || !global.updateTime['refreshRoom'] || Game.time > global.updateTime.refrshRoom) {
       const roomName:string[] = [];
       for(const spawn in Game.spawns) {
         const name = Game.spawns[spawn].room.name;
@@ -32,27 +32,54 @@ export class CommUpdate {
     }
   }
 
-  /** 更新所有建筑列表 */
+  /** 根据数组中的字段顺序排列目标数组,无返回值
+   * @param target 混乱的列表
+   * @param priority 优先级列表，据此排序
+   */
+  static sortByArr(target:Structure[], priority:string[]) {
+    target.sort((a:Structure, b:Structure) => {
+      return priority.findIndex((val) => {
+        return a.structureType === val
+      }) - priority.findIndex((val) => {
+        return b.structureType === val
+      })
+    })
+  }
+
+  /** 更新所有建筑列表(欲删除，无实用价值) - 1000tick */
   static updateStruct(room:string, forceLoad=false) {
     // 首次更新或到达设定更新时间，更新建筑列表
     if(forceLoad || !global.updateTime['refreshStruct'] || Game.time > global.updateTime['refreshStruct']) {
+      // 查找所有建筑
       const struct = Game.rooms[room].find(FIND_STRUCTURES);
+      // 设置tower列表
+      rooms[room].towers = struct.filter(item => {
+        return item.structureType === STRUCTURE_TOWER;
+      })
       rooms[room].struct = struct;
-      global.updateTime['refreshStruct'] = Game.time + 200;
-      CommUpdate.updateRepair(room, true);
+      global.updateTime['refreshStruct'] = Game.time + 1000;
       console.log('CommUpdate-updateStruct');
     }
   }
 
-  /** 更新repair列表 */
+  /** 更新repair列表 - 500tick */
   static updateRepair(room:string, forceLoad=false) {
-    rooms[room].repair = rooms[room].struct.filter((item:Structure) => {
-      return item.hits < item.hitsMax;
-    })
-    console.log('CommUpdate - updateRepair');
+    // 每过500tick更新一次维护列表，除非强制更新
+    if(forceLoad || !global.updateTime['refreshRepair'] || Game.time > global.updateTime['refreshRepair']) {
+      const repairs = Game.rooms[room].find(FIND_STRUCTURES, {
+        filter: (item:Structure) => {
+          return item.hits < item.hitsMax;
+        }
+      })
+      const priority = ['road', 'link', 'rampart', 'wall'];
+      CommUpdate.sortByArr(repairs, priority);
+      rooms[room].repair = repairs;
+      global.updateTime['refreshRepair'] = Game.time + 500;
+      console.log('CommUpdate - updateRepair');
+    }
   }
 
-  /** 更新source和container列表 */
+  /** 更新source和container列表 - null | 500tick */
   static updateSource(room:string, forceLoad=false) {
     if(forceLoad || !rooms[room].source.length || !global.updateTime['refreshSource'] || Game.time > global.updateTime['refreshSource']) {
       let container, sources:any[];
@@ -80,7 +107,7 @@ export class CommUpdate {
     }
   }
 
-  /** 更新harvest列表 */
+  /** 更新harvest列表 - null | 50tick */
   static updateHarvest(room:string, forceLoad=false) {
     if(forceLoad || !rooms[room].harvest.length || !global.updateTime['refresHarvest'] || Game.time > global.updateTime['refresHarvest']) {
       if(rooms[room].struct.length) {
@@ -96,13 +123,7 @@ export class CommUpdate {
         })
         const priority = ['spawn', 'extension', 'link', 'tower', 'storage'];
         // 根据优先级列表对harvest列表排序
-        harvest.sort((a:Structure, b:Structure) => {
-          return priority.findIndex((val) => {
-            return a.structureType === val
-          }) - priority.findIndex((val) => {
-            return b.structureType === val
-          })
-        })
+        CommUpdate.sortByArr(harvest, priority);
         rooms[room].harvest = harvest;
         global.updateTime['refresHarvest'] = Game.time + 50;
       }
@@ -110,9 +131,10 @@ export class CommUpdate {
     }
   }
 
-  /** 更新建造列表 */
+  /** 更新建造列表 - 200tick */
   static updateBuild(room:string, forceLoad=false) {
-    if(forceLoad || !rooms[room].build.length || !global.updateTime['refreshBuild'] || Game.time > global.updateTime['refreshBuild']) {
+    // 200tick更新一次build列表，除非强制更新
+    if(forceLoad || !global.updateTime['refreshBuild'] || Game.time > global.updateTime['refreshBuild']) {
       const struct = Game.rooms[room].find(FIND_CONSTRUCTION_SITES);
       if(struct.length) {
         rooms[room].build = struct
@@ -180,7 +202,7 @@ export class CommCreep {
     }
   }
 
-  /** creep - 设置独立task
+  /** 设置独立task(待修改，将idx改为id)
    * @param taskType 任务列表key
    */
   setTask(taskType: string): void {

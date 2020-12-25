@@ -16,6 +16,7 @@
 > role.action.harvester: 采集能量矿，运输至房间内各个能量建筑，如spawn、extension、link
 > role.action.upgrader: 升级房间等级
 > role.action.builder: 建筑建设
+> role.action.miner: 矿物采集
 > role.action.expand: 占领其他房间，手动控制欲占领的目标房间
 > role.common: 公共方法，主要包括creep的公共函数，少量建筑的公共函数
 > creep.mod: creep模板(包含各creep数量，部件情况等)
@@ -78,6 +79,15 @@
 
 ```
 
+## 优化思路
+```
+  存储对象id,根据全局对象Game.xx.id获取对应对象，可避免因自我存储对象导致的对象状态固化的情况(数据不实时更新)
+  注意点: 1、Game.xx.id获取的对象是否为游戏对象，或可能为单纯的数据存储，需测试
+          2、使用Game.xxx方式获取对象与Game.getByID()性能消耗对比，若一致，使用getByID更为便捷
+          3、若1测试结果为对象，后续任务列表存储于memory还是global中，各自性能消耗情况
+          4、若存储全局对象，存储游戏对象与存储游戏对象id哪种性能比更佳
+
+```
 
 ## 当前任务：
 ```javascript

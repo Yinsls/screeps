@@ -54,10 +54,9 @@ class Tower {
 }
 
 function creTowerClass(roomName: string) {
-  rooms[roomName]['struct'].filter((item: any) => {
-    return item.structureType === STRUCTURE_TOWER;
-  }).forEach((tower: STRUCTURE_TOWER) => {
-    new Tower(tower).run()
+  // 从room.towers列表中获取tower
+  rooms[roomName]['towers'].forEach((tower: STRUCTURE_TOWER) => {
+    new Tower(tower).run();
   })
 }
 
