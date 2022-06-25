@@ -4,5 +4,7 @@ build
 # 依赖包
 node_modules
 
+.DS_Store
+
 # screeps配置文件
 .secret.json
