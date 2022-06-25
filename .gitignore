@@ -1,0 +1,8 @@
+# 打包文件
+build
+
+# 依赖包
+node_modules
+
+# screeps配置文件
+.secret.json
